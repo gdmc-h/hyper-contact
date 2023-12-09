@@ -1,5 +1,4 @@
 # HYPER CONTACT
----
 
 implementation of Contact.app in Rust
 
