@@ -1,0 +1,65 @@
+{% extends "../base.html" %}
+
+{% block content %}
+    {% if let Some(contact) = contact %} 
+    <form action="/contacts/{{contact.id}}/edit" method="post">
+        <fieldset>
+            <legend>Contact values</legend>
+            <p>
+                <label for="email">email</label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    id="email" 
+                    placeholder="Email"  
+                    value="{{contact.email}}" 
+                >
+                <span class="error"></span>
+            </p>
+            <p>
+                <label for="first_name">first name</label>
+                <input 
+                    type="text" 
+                    name="first" 
+                    id="first_name" 
+                    placeholder="First Name" 
+                    value="{{contact.first}}" 
+                >
+                <span class="error"></span>
+            </p>     
+            <p>
+                <label for="last_name">last name</label>
+                <input 
+                    type="text" 
+                    name="last" 
+                    id="last_name" 
+                    placeholder="Last Name" 
+                    value="{{contact.last}}"
+                >
+                <span class="error"></span>
+            </p>
+            <p>
+                <label for="phone">phone</label>
+                <input 
+                    type="text" 
+                    name="phone" 
+                    id="phone" 
+                    placeholder="Phone"
+                    value="{{contact.phone}}"
+                >
+                <span class="error"></span>
+            </p>
+        </fieldset>
+        <button type="submit">Submit</button>
+    </form>
+    <form action="/contacts/{{contact.id}}/delete" method="post">
+        <button>Delete Contact</button>
+    </form>
+    <p>
+        <a href="/contacts">Back</a>
+    </p>
+    {% else %}
+        <p>user not found</p>
+        <a href="/contacts">Go back</a>
+    {% endif %}
+{% endblock%}

@@ -1,0 +1,8 @@
+{% extends "../base.html" %}
+{% block content %}
+    {% if deleted %}
+        <p>user has been deleted</p>
+    {% else %}
+        <p>error: user does not exist</p>
+    {% endif %}
+{% endblock %}

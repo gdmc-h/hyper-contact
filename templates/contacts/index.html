@@ -1,0 +1,10 @@
+{% extends "../base.html" %}
+
+{% block content %}
+    <form action="/contacts" method="get">
+        <label for="search">Search Term</label>
+        <input id="search" type="search" name="q" value="{{q}}"/>
+        <input type="submit" value="Search"/>
+    </form>
+    {% include "table.html" %}
+{% endblock %}
