@@ -5,7 +5,7 @@ mod templates;
 use axum::{Router, routing::{get, post}, response::Redirect};
 use axum_test::TestServer;
 
-use self::{health::health, contacts::{contacts_index, new_contact, save_contact, show_contact, show_edit_contact, edit_contact, delete_contact}};
+use self::{health::health, contacts::{contacts_index, new_contact, save_contact, show_contact, show_edit_contact, edit_contact, delete_contact, contacts_search}};
 
 pub async fn start() {
     let app = routes();
@@ -22,7 +22,7 @@ pub async fn start() {
     match axum::serve(listener, app).await {
         Ok(_) => println!("axum is serving"),
         Err(e) => panic!("axum dropped the ball:\n{}", e)
-    };
+   };
 
 }
 
@@ -31,6 +31,7 @@ fn routes() -> Router {
     .route("/api/health", get(health))
     .route("/", get(|| async { Redirect::permanent("/contacts")}))
     .route("/contacts", get(contacts_index))
+    .route("/contacts", post(contacts_search))
     .route("/contacts/:user_id/view", get(show_contact))
     .route("/contacts/new", get(new_contact))
     .route("/contacts/new", post(save_contact))

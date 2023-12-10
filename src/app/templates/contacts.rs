@@ -7,8 +7,25 @@ use crate::models::Contact;
 #[derive(Template)]
 #[template(path="contacts/index.html")]
 pub struct ContactsTemplate {
-    pub contacts: Vec<Contact>,
     pub q: String
+}
+
+impl default::Default for ContactsTemplate {
+    fn default() -> Self {
+        ContactsTemplate { q: String::from("") }
+    }
+}
+
+#[derive(Template)]
+#[template(path="contacts/table.html")]
+pub struct ContactsTable {
+    pub contacts: Vec<Contact>,
+}
+
+impl default::Default for ContactsTable{
+    fn default() -> Self {
+        ContactsTable { contacts: Vec::new() }
+    }
 }
 
 #[derive(Template)]

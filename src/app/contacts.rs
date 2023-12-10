@@ -4,7 +4,7 @@ use askama_axum::IntoResponse;
 use axum::{extract::{Query, Path}, Form};
 use diesel::prelude::*;
 
-use crate::{models::{Contact, NewContact}, db::connection, app::templates::{get_template, contacts::{ContactsTemplate, ShowContactTemplate, DeleteContactTemplate}}};
+use crate::{models::{Contact, NewContact}, db::connection, app::templates::{get_template, contacts::{ContactsTemplate, ShowContactTemplate, DeleteContactTemplate, ContactsTable}}};
 
 use super::templates::contacts::{NewContactTemplate, EditContactTemplate};
 
@@ -14,25 +14,31 @@ pub struct Params {
     pub q: Option<String>
 }
 
-pub async fn contacts_index(Query(params): Query<Params>) -> impl IntoResponse {
+pub async fn contacts_index() -> impl IntoResponse {
+    get_template(ContactsTemplate::default())
+}
+
+pub async fn contacts_search(Form(form): Form<Params>) -> impl IntoResponse {
     use crate::schema::contacts::dsl::*;
     let default_contacts: Vec<Contact> = Vec::new();
 
-    let (q, contacts_vector) = match params.q {
-        Some(query) => (
-            query.clone(), 
-            contacts
-                .filter(
-                    email.like(
-                        format!("%{}%", query.clone())
+    let contacts_vector = match form.q {
+        Some(query) => {
+            let con = &mut connection();
+
+                contacts
+                    .filter(
+                        email.like(
+                            format!("%{}%", query.clone())
+                        )
                     )
-                )
-                .load::<Contact>(&mut connection()).unwrap()
-        ),
-        None => ("".to_string(), default_contacts),
+                    .load::<Contact>(con).unwrap()
+
+        },
+        None =>  default_contacts
     };
 
-    get_template(ContactsTemplate { contacts: contacts_vector, q })    
+    get_template(ContactsTable { contacts: contacts_vector })
 }
 
 pub async fn new_contact() -> impl IntoResponse {
@@ -43,7 +49,10 @@ pub async fn save_contact(Form(payload): Form<NewContact>) -> impl IntoResponse 
     use crate::schema::contacts::dsl::*;
 
     let connection = &mut connection();
-    let fetched_users: Result<Vec<Contact>, _> = contacts.filter(email.eq(&payload.email)).load::<Contact>(connection);
+    let fetched_users: Result<Vec<Contact>, _> = contacts
+        .filter(
+            email.eq(&payload.email)
+        ).load::<Contact>(connection);
 
     if let Ok(fetched_users) = fetched_users {
         if !fetched_users.is_empty() {
@@ -82,7 +91,10 @@ pub async fn show_contact(Path(user_id): Path<String>) -> impl IntoResponse {
     use crate::schema::contacts::dsl::*;   
 
     let con = &mut connection();
-    let fetch_user = contacts.filter(id.eq(user_id.parse::<i32>().unwrap())).first::<Contact>(con);
+    let fetch_user = contacts
+        .filter(
+            id.eq(user_id.parse::<i32>().unwrap())
+        ).first::<Contact>(con);
 
     if let Ok(user) = fetch_user { 
         return get_template(ShowContactTemplate { contact: Some(user) }) 
@@ -95,7 +107,10 @@ pub async fn show_edit_contact(Path(user_id): Path<String>) -> impl IntoResponse
     use crate::schema::contacts::dsl::*;
 
     let con = &mut connection();
-    let fetch_user_data = contacts.filter(id.eq(user_id.parse::<i32>().unwrap())).first::<Contact>(con);
+    let fetch_user_data = contacts
+        .filter(
+            id.eq(user_id.parse::<i32>().unwrap())
+        ).first::<Contact>(con);
 
     if let Ok(user) = fetch_user_data {
         return get_template(EditContactTemplate { contact: Some(user) })
